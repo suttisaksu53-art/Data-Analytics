@@ -679,7 +679,7 @@
       );
     };
 
-    const HeatmapCell = ({ value }) => {
+    const HeatmapCell = ({ value, decimals = 2 }) => {
       let bgColor = 'bg-white';
       let textColor = 'text-slate-800';
 
@@ -697,12 +697,14 @@
           style={{ backgroundColor: bgColor }}
           title={`Correlation: ${value.toFixed(4)}`}
         >
-          {value.toFixed(2)}
+          {value.toFixed(decimals)}
         </div>
       );
     };
 
     const Heatmap = ({ data, columns }) => {
+      const [decimals, setDecimals] = useState(2);
+
       const correlationMatrix = useMemo(() => {
         const matrix = {};
         columns.forEach(colX => {
@@ -727,10 +729,25 @@
       return (
         <div className="space-y-6">
           <Card className="pdf-export-item p-6 overflow-auto break-inside-avoid">
-            <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-              <BarChart2 size={20} className="text-blue-600" />
-              เมทริกซ์ความสัมพันธ์ (เฉพาะตัวแปรที่เลือก)
-            </h3>
+            <div className="flex items-start justify-between mb-6 gap-4">
+              <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <BarChart2 size={20} className="text-blue-600" />
+                เมทริกซ์ความสัมพันธ์ (เฉพาะตัวแปรที่เลือก)
+              </h3>
+              <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 no-print shrink-0">
+                <span className="text-xs font-medium text-slate-600">ทศนิยม:</span>
+                <select 
+                  value={decimals} 
+                  onChange={(e) => setDecimals(Number(e.target.value))}
+                  className="text-xs font-semibold text-blue-700 bg-white border border-blue-200 rounded px-2 py-1 outline-none cursor-pointer focus:ring-1 focus:ring-blue-500"
+                >
+                  <option value={2}>2 ตำแหน่ง</option>
+                  <option value={3}>3 ตำแหน่ง</option>
+                  <option value={4}>4 ตำแหน่ง</option>
+                </select>
+              </div>
+            </div>
+            
             <div className="min-w-max">
               <div className="flex">
                 <div className="w-32 flex-shrink-0"></div>
@@ -748,7 +765,7 @@
                   </div>
                   {columns.map(colCol => (
                     <div key={`${rowCol}-${colCol}`} className="w-24 flex-shrink-0 border border-slate-100">
-                      <HeatmapCell value={correlationMatrix[rowCol][colCol]} />
+                      <HeatmapCell value={correlationMatrix[rowCol][colCol]} decimals={decimals} />
                     </div>
                   ))}
                 </div>
